@@ -170,13 +170,17 @@ spec:
             timeoutSeconds: {{ .Values.dagProcessor.livenessProbe.timeoutSeconds }}
             failureThreshold: {{ .Values.dagProcessor.livenessProbe.failureThreshold }}
             periodSeconds: {{ .Values.dagProcessor.livenessProbe.periodSeconds }}
+            {{- if .Values.dagProcessor.livenessProbe.command }}
             exec:
               command:
-                  {{- if .Values.dagProcessor.livenessProbe.command }}
-                  {{ toYaml .Values.dagProcessor.livenessProbe.command | nindent 16 }}
-                  {{- else }}
-                  {{- include "dag_processor_liveness_check_command" . | nindent 16 }}
-                  {{- end }}
+                {{ toYaml .Values.dagProcessor.livenessProbe.command | nindent 16 }}
+                {{- else if .Values.dagProcessor.livenessProbe.port }}
+            httpGet:
+              path: /health
+              port: {{ .Values.dagProcessor.livenessProbe.port }}
+                {{- else }}
+                {{- include "dag_processor_liveness_check_command" . | nindent 16 }}
+                {{- end }}
         {{- if and (.Values.dags.gitSync.enabled) (not .Values.dags.persistence.enabled) }}
         {{- include "git_sync_container" . | indent 8 }}
         {{- end }}

@@ -36,10 +36,9 @@ class HealthServer(BaseHTTPRequestHandler):
 
 
 def serve_health_check():
-    health_check_port = 8080  # TODO: get it from config value
-    if conf.getboolean("scheduler", "standalone_dag_processor"):
-        httpd = HTTPServer(("0.0.0.0", health_check_port), HealthServer)
-        httpd.serve_forever()
+    health_check_port = conf.getint("scheduler", "DAG_PROCESSOR_HEALTH_CHECK_SERVER_PORT")
+    httpd = HTTPServer(("0.0.0.0", health_check_port), HealthServer)
+    httpd.serve_forever()
 
 
 if __name__ == "__main__":

@@ -76,24 +76,22 @@ def dag_processor(args):
                 stderr=stderr_handle,
                 umask=int(settings.DAEMON_UMASK, 8),
             )
-            with ctx, _serve_health_check(True):
+            with ctx, _serve_health_check():
                 try:
                     manager.start()
                 finally:
                     manager.terminate()
                     manager.end()
     else:
-        with _serve_health_check(True):
+        with _serve_health_check():
             manager.start()
 
 
 @contextmanager
-def _serve_health_check(enable_health_check: bool = False):
+def _serve_health_check():
     """Starts serve_health_check sub-process."""
-    sub_proc = None
-    if enable_health_check:
-        sub_proc = Process(target=serve_health_check)
-        sub_proc.start()
+    sub_proc = Process(target=serve_health_check)
+    sub_proc.start()
     yield
     if sub_proc:
         sub_proc.terminate()

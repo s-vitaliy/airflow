@@ -2217,6 +2217,14 @@
       type: string
       example: ~
       default: "15"
+    - name: dag_processor_health_check_server_port
+      description: |
+        Only applicable if `[scheduler]standalone_dag_processor` is true.
+        Port number for dag processor health checks
+      version_added: 0.0.0
+      type: integer
+      example: ~
+      default: 8975
 - name: triggerer
   description: ~
   options:

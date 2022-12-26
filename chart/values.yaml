@@ -1166,7 +1166,6 @@ dagProcessor:
     timeoutSeconds: 20
     failureThreshold: 5
     periodSeconds: 60
-    command: ~
 
   # Create ServiceAccount
   serviceAccount:

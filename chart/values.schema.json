@@ -2458,6 +2458,13 @@
                                     "null"
                                 ]
                             }
+                        },
+                        "port": {
+                            "description": "Port for livenessProbe",
+                            "type": [
+                                "integer",
+                                "null"
+                            ]
                         }
                     }
                 },
