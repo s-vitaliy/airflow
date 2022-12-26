@@ -18,13 +18,16 @@
 from __future__ import annotations
 
 import logging
+from contextlib import contextmanager
 from datetime import timedelta
+from multiprocessing import Process
 
 import daemon
 from daemon.pidfile import TimeoutPIDLockFile
 
 from airflow import settings
 from airflow.configuration import conf
+from airflow.dag_processing.dag_processor_health import serve_health_check
 from airflow.dag_processing.manager import DagFileProcessorManager
 from airflow.utils import cli as cli_utils
 from airflow.utils.cli import setup_locations, setup_logging
@@ -73,11 +76,24 @@ def dag_processor(args):
                 stderr=stderr_handle,
                 umask=int(settings.DAEMON_UMASK, 8),
             )
-            with ctx:
+            with ctx, _serve_health_check(True):
                 try:
                     manager.start()
                 finally:
                     manager.terminate()
                     manager.end()
     else:
-        manager.start()
+        with _serve_health_check(True):
+            manager.start()
+
+
+@contextmanager
+def _serve_health_check(enable_health_check: bool = False):
+    """Starts serve_health_check sub-process."""
+    sub_proc = None
+    if enable_health_check:
+        sub_proc = Process(target=serve_health_check)
+        sub_proc.start()
+    yield
+    if sub_proc:
+        sub_proc.terminate()
